@@ -159,6 +159,8 @@ While the schemas should look like the data definitions above, these are descrip
 
 ##### `GET /reviews`
 
+**limit to 100 most recent**
+
 ```
 [{ 
     _id, rating, review, 
@@ -166,10 +168,9 @@ While the schemas should look like the data definitions above, these are descrip
 }] 
 ```
 
-**limit to 100 most recent**
 
 
-#### POST/PATCH
+#### POST/PUT
 
 Studio, Films, and Actors, Reviewers and Reviews can be added and updated.
 
