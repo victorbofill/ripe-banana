@@ -172,9 +172,9 @@ While the schemas should look like the data definitions above, these are descrip
 
 #### POST/PUT
 
-Studio, Films, and Actors, Reviewers and Reviews can be added and updated.
+Studio, Films, and Actors, Reviewers and Reviews can be added.
 
-Actors are added to films as part of normal film insert or update.
+Actors and Reviewers updated.
 
 #### DELETE
 
