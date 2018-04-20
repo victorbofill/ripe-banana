@@ -5,7 +5,7 @@ const { dropCollection } = require('./db');
 describe('Actor E2E API', () => {
 
 
-    // before (() => dropCollection('bannanas'));
+    // before (() => dropCollection('banannas'));
 
     let felicia =  {
         name: 'Felicity Day',
