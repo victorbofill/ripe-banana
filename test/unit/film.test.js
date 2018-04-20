@@ -3,7 +3,7 @@ const { Types } = require('mongoose');
 const Film = require('../../lib/models/Film');
 const { getErrors } = require('./helpers');
 
-describe.only('Film model', () => {
+describe('Film model', () => {
     it('valid and good model', () => {
         const data = {
             title: 'Land Before Time 5',
