@@ -96,4 +96,12 @@ describe('Actor E2E API', () => {
                 assert.equal(res.status, 404);
             });
     });
+
+    it('returns 404 on non-existant id', () => {
+        return request.get(`/actors/${felicia._id}`)
+            .then(res => {
+                assert.equal(res.status, 404);
+                assert.match(res.body.error, new RegExp(felicia._id));
+            });
+    });
 });
