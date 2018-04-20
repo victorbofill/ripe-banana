@@ -21,6 +21,12 @@ describe.only('Reviewer API', () => {
         return res;
     };
 
+    const getAllFields = ({ _id, name }) => {
+        return {
+            _id, name
+        };
+    };
+
     it('saves a reviewer', () => {
 
         return request.post('/reviewers')
@@ -52,7 +58,7 @@ describe.only('Reviewer API', () => {
             });
     });
 
-    it('updates a reviewer', ()=> {
+    it('updates a reviewer', () => {
         guy.name = 'Mr. Some Guy';
 
         return request.put(`/reviewers/${guy._id}`)
@@ -65,6 +71,15 @@ describe.only('Reviewer API', () => {
             .then(({ body }) => {
                 assert.equal(body.name, guy.name)
             });
+    });
+
+    it('gets all reviewers', () => {
+        return request.get('/reviewers')
+            .then(checkOk)
+            .then(({ body }) => {
+                assert.deepEqual(body, [kael, guy].map(getAllFields));
+            });
+
     });
     
 });
