@@ -55,7 +55,7 @@ describe.only('Reviewer API', () => {
     it('updates a reviewer', ()=> {
         guy.name = 'Mr. Some Guy';
 
-        return request.put(`/reviewers/${guy.id}`)
+        return request.put(`/reviewers/${guy._id}`)
             .send(guy)
             .then(checkOk)
             .then(({ body }) => {
