@@ -4,8 +4,7 @@ const { dropCollection } = require('./db');
 
 describe('Actor E2E API', () => {
 
-
-    before (() => dropCollection('bananas'));
+    before (() => dropCollection('actors'));
 
     let felicia =  {
         name: 'Felicity Day',
@@ -13,13 +12,21 @@ describe('Actor E2E API', () => {
         pob: 'Huntsville, AL'
     };
 
-    // let someone = {
-    //     stuff
-    // };
+    let wilder = {
+        name: 'Gene Wilder',
+        dob: new Date(1933, 6, 11),
+        pob: 'Miluakee, MI'
+    };
 
     const checkOk = res => {
         if(!res.ok) throw res.error;
         return res;
+    };
+
+    const getAllFields = ({ _id, name }) => {
+        return {
+            _id, name
+        };
     };
 
     it('saves and gets an actor', () => {
@@ -28,7 +35,7 @@ describe('Actor E2E API', () => {
             .send(felicia)
             .then(checkOk)
             .then(({ body }) => {
-                const { _id, __v,  dob} = body;
+                const { _id, __v, dob } = body;
                 assert.ok( _id );
                 assert.equal(__v, 0);
                 assert.deepEqual(body, {
@@ -39,4 +46,62 @@ describe('Actor E2E API', () => {
             });
     });
 
+    it('gets an actor by id', () => {
+
+        return request.post('/actors')
+            .send(wilder)
+            .then(checkOk)
+            .then(({ body }) => {
+                wilder = body;
+                return request.get(`/actors/${wilder._id}`)
+            })
+            .then(({ body }) => {
+                const { dob } = body;
+                assert.deepEqual(body, {
+                    ...wilder,
+                    dob
+                });
+            });
+    });
+
+    it('updates an actor', () => {
+        wilder.pob = 'Miluakee, WI';
+
+        return request.put(`/actors/${wilder._id}`)
+            .send(wilder)
+            .then(checkOk)
+            .then(({ body }) => {
+                assert.deepEqual(body, wilder);
+                return request.get(`/actors/${wilder._id}`);
+            })
+            .then(({ body }) => {
+                assert.equal(body.role, wilder.role);
+            });
+    });
+
+    it('gets all actors', () => {
+        return request.get('/actors')
+            .then(checkOk)
+            .then(({ body }) => {
+                assert.deepEqual(body, [felicia, wilder].map(getAllFields));
+            });
+    });
+
+    it('bye felicia', () => {
+        return request.delete(`/actors/${felicia._id}`)
+            .then(() => {
+                return request.get(`/actors/${felicia._id}`);
+            })
+            .then(res => {
+                assert.equal(res.status, 404);
+            });
+    });
+
+    it('returns 404 on non-existant id', () => {
+        return request.get(`/actors/${felicia._id}`)
+            .then(res => {
+                assert.equal(res.status, 404);
+                assert.match(res.body.error, new RegExp(felicia._id));
+            });
+    });
 });
