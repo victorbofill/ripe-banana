@@ -13,9 +13,11 @@ describe('Actor E2E API', () => {
         pob: 'Huntsville, AL'
     };
 
-    // let someone = {
-    //     stuff
-    // };
+    let wilder = {
+        name: 'Gene Wilder',
+        dob: new Date(1933, 6, 11),
+        pob: 'Miluakee, WI'
+    };
 
     const checkOk = res => {
         if(!res.ok) throw res.error;
@@ -28,7 +30,7 @@ describe('Actor E2E API', () => {
             .send(felicia)
             .then(checkOk)
             .then(({ body }) => {
-                const { _id, __v,  dob} = body;
+                const { _id, __v, dob} = body;
                 assert.ok( _id );
                 assert.equal(__v, 0);
                 assert.deepEqual(body, {
@@ -36,6 +38,24 @@ describe('Actor E2E API', () => {
                     _id, __v, dob
                 });
                 felicia = body;
+            });
+    });
+
+    it('gets an actor by id', () => {
+
+        return request.post('/actors')
+            .send(wilder)
+            .then(checkOk)
+            .then(({ body }) => {
+                wilder = body;
+                return request.get(`/actors/${wilder._id}`)
+            })
+            .then(({ body }) => {
+                const { dob } = body;
+                assert.deepEqual(body, {
+                    ...wilder,
+                    dob
+                });
             });
     });
 
