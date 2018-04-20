@@ -11,9 +11,10 @@ describe.only('Reviewer API', () => {
         company: 'https://www.rottentomatoes.com/critic/pauline-kael/movies'
     };
 
-    // const someone = {
-    //     somthine
-    // }
+    let guy = {
+        name: 'Some Guy',
+        company: 'https://www.myopinionmatters.com'
+    };
     
     const checkOk = res => {
         if(!res.ok) throw res.error;
@@ -34,6 +35,20 @@ describe.only('Reviewer API', () => {
                     _id, __v
                 });
                 kael = body;
+            });
+    });
+
+    it('gets a reviewer by id', () => {
+
+        return request.post('/reviewers')
+            .send(guy)
+            .then(checkOk)
+            .then(({ body }) => {
+                guy = body;
+                return request.get(`/reviewers/${guy._id}`);
+            })
+            .then(({ body }) => {
+                assert.deepEqual(body, guy);
             });
     });
     
