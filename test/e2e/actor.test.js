@@ -5,7 +5,7 @@ const { dropCollection } = require('./db');
 describe('Actor E2E API', () => {
 
 
-    // before (() => dropCollection('banannas'));
+    before (() => dropCollection('bananas'));
 
     let felicia =  {
         name: 'Felicity Day',
@@ -28,12 +28,12 @@ describe('Actor E2E API', () => {
             .send(felicia)
             .then(checkOk)
             .then(({ body }) => {
-                const { _id, __v } = body;
+                const { _id, __v,  dob} = body;
                 assert.ok( _id );
                 assert.equal(__v, 0);
                 assert.deepEqual(body, {
-                    _id, __v,
-                    ...felicia
+                    ...felicia,
+                    _id, __v, dob
                 });
                 felicia = body;
             });
