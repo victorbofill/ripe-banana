@@ -91,5 +91,14 @@ describe.only('Reviewer API', () => {
                 assert.equal(res.status, 404);
             });
     });
+
+    it('returns 404 on get of non-existent id', () => {
+        return request.get(`/reviewers/${guy._id}`)
+            .then(response => {
+                assert.equal(response.status, 404);
+                assert.match(response.body.error, new RegExp(guy._id));
+            });
+    });
+
     
 });
