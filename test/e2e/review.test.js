@@ -60,12 +60,12 @@ describe.only('Review API', () => {
             .send(good)
             .then(checkOk)
             .then(({ body }) => {
-                const { _id, __v } = body;
+                const { _id, __v, uploaded, rating } = body;
                 assert.ok(_id);
                 assert.equal(__v, 0);
                 assert.deepEqual(body, {
                     ...good,
-                    _id, __v
+                    _id, __v, uploaded, rating
                 });
                 good = body;
             });
