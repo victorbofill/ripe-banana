@@ -20,7 +20,7 @@
     "type": "git",
     "url": "git+https://github.com/victorbofill/git-template.git"
   },
-  "author": "Victor Bofill <victorm.bofill@gmail.com>, Jen Lipton <jkl.lipton@gmail.com>",
+  "author": "Victor Bofill <victorm.bofill@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/victorbofill/git-template/issues"
