@@ -81,5 +81,15 @@ describe.only('Reviewer API', () => {
             });
 
     });
+
+    it('deletes a reviewer', () => {
+        return request.delete(`/reviewers/${guy._id}`)
+            .then(() => {
+                return request.get(`/reviewers/${guy._id}`);
+            })
+            .then(res => {
+                assert.equal(res.status, 404);
+            });
+    });
     
 });
