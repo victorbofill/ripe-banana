@@ -4,8 +4,7 @@ const { dropCollection } = require('./db');
 
 describe('Actor E2E API', () => {
 
-
-    before (() => dropCollection('bananas'));
+    before (() => dropCollection('actors'));
 
     let felicia =  {
         name: 'Felicity Day',
@@ -22,6 +21,12 @@ describe('Actor E2E API', () => {
     const checkOk = res => {
         if(!res.ok) throw res.error;
         return res;
+    };
+
+    const getAllFields = ({ _id, name }) => {
+        return {
+            _id, name
+        };
     };
 
     it('saves and gets an actor', () => {
@@ -74,4 +79,11 @@ describe('Actor E2E API', () => {
             });
     });
 
+    it('gets all actors', () => {
+        return request.get('/actors')
+            .then(checkOk)
+            .then(({ body }) => {
+                assert.deepEqual(body, [felicia, wilder].map(getAllFields));
+            });
+    });
 });
