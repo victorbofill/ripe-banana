@@ -2,7 +2,7 @@ const http = require('http');
 const app = require('./lib/app');
 const connect = require('./lib/util/connect');
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const MONGODB_URI = 'mongodb://localhost:27017/bananas';
 
