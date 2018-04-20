@@ -30,12 +30,12 @@ describe('Review model', () => {
 
     it('valid good model', () => {
         const uploaded = new Date();
-        const rating = "5";
+        const rating = '5';
         const data = {
             rating: 5,
-            reviewer: Types.ObjectId(),
+            reviewer: Types.ObjectId(), /* eslint-disable-line */
             review: 'it is very good',
-            film: Types.ObjectId(),
+            film: Types.ObjectId(), /* eslint-disable-line */
             uploaded: uploaded
         };
 
