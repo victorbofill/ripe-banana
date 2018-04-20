@@ -51,5 +51,20 @@ describe.only('Reviewer API', () => {
                 assert.deepEqual(body, guy);
             });
     });
+
+    it('updates a reviewer', ()=> {
+        guy.name = 'Mr. Some Guy';
+
+        return request.put(`/reviewers/${guy.id}`)
+            .send(guy)
+            .then(checkOk)
+            .then(({ body }) => {
+                assert.deepEqual(body, guy);
+                return request.get(`/reviewers/${guy._id}`);
+            })
+            .then(({ body }) => {
+                assert.equal(body.name, guy.name)
+            });
+    });
     
 });
