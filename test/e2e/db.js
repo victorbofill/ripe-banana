@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './test/e2e/.enc' });
+require('dotenv').config({ path: './test/e2e/.env' });
 const connect = require('../../lib/util/connect');
 const mongoose = require('mongoose');
 
