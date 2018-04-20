@@ -2,7 +2,7 @@ const { assert } = require('chai');
 const request = require('./request');
 const { dropCollection } = require('./db');
 
-describe.only('Reviewer API', () => {
+describe('Reviewer API', () => {
 
     before(() => dropCollection('reviewers'));
 
@@ -69,7 +69,7 @@ describe.only('Reviewer API', () => {
                 return request.get(`/reviewers/${guy._id}`);
             })
             .then(({ body }) => {
-                assert.equal(body.name, guy.name)
+                assert.equal(body.name, guy.name);
             });
     });
 
@@ -100,5 +100,4 @@ describe.only('Reviewer API', () => {
             });
     });
 
-    
 });

@@ -1,30 +1,7 @@
 const { assert } = require('chai');
 const { Types } = require('mongoose');
 const Review = require('../../lib/models/Review');
-const Reviewer = require('../../lib/models/Reviewer');
 const { getErrors } = require('./helpers');
-
-
-describe('Reviewer model', () => {
-
-    it('valid good model', () => {
-        const data = {
-            name: 'Pauline Kael',
-            company: 'https://www.rottentomatoes.com/critic/pauline-kael/movies'
-        };
-
-        const kael = new Reviewer(data);
-        data._id = kael._id;
-        assert.deepEqual(kael.toJSON(), data);
-        assert.isUndefined(kael.validateSync());
-    });
-
-    it('required name', () => {
-        const actor = new Reviewer({});
-        const errors = getErrors(actor.validateSync(), 1);
-        assert.equal(errors.name.kind, 'required');
-    });
-});
 
 describe('Review model', () => {
 
@@ -51,15 +28,17 @@ describe('Review model', () => {
 
     it('required rating', () => {
         const review = new Review({});
-        const errors = getErrors(review.validateSync(), 1);
+        const errors = getErrors(review.validateSync(), 3);
         assert.equal(errors.rating.kind, 'required');
+        assert.equal(errors.film.kind, 'required');
+        assert.equal(errors.reviewer.kind, 'required');
     });
 
     it('review must be a tweet', () => {
         const review = new Review({
             review: 'it was very good but sometimes bad and i had to stop and think is it good or bad? and i thought about it and i decided it was good sometimes.'
         });
-        const errors = getErrors(review.validateSync(), 2);
+        const errors = getErrors(review.validateSync(), 4);
         assert.equal(errors.review.kind, 'maxlength');
     });
 });
