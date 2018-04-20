@@ -35,7 +35,7 @@ describe('Actor E2E API', () => {
             .send(felicia)
             .then(checkOk)
             .then(({ body }) => {
-                const { _id, __v, dob} = body;
+                const { _id, __v, dob } = body;
                 assert.ok( _id );
                 assert.equal(__v, 0);
                 assert.deepEqual(body, {
