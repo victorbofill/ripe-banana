@@ -15,7 +15,7 @@ describe('Actor E2E API', () => {
     let wilder = {
         name: 'Gene Wilder',
         dob: new Date(1933, 6, 11),
-        pob: 'Miluakee, MI'
+        pob: 'Milwaukee, MI'
     };
 
     const checkOk = res => {
@@ -53,7 +53,7 @@ describe('Actor E2E API', () => {
             .then(checkOk)
             .then(({ body }) => {
                 wilder = body;
-                return request.get(`/actors/${wilder._id}`)
+                return request.get(`/actors/${wilder._id}`);
             })
             .then(({ body }) => {
                 const { dob } = body;
