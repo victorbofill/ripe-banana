@@ -86,4 +86,14 @@ describe('Actor E2E API', () => {
                 assert.deepEqual(body, [felicia, wilder].map(getAllFields));
             });
     });
+
+    it('bye felicia', () => {
+        return request.delete(`/actors/${felicia._id}`)
+            .then(() => {
+                return request.get(`/actors/${felicia._id}`);
+            })
+            .then(res => {
+                assert.equal(res.status, 404);
+            });
+    });
 });
