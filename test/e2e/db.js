@@ -1,8 +1,8 @@
-require('dotenv').config({ path: './test/e2e/.enc' });
+require('dotenv').config({ path: './.env' });
 const connect = require('../../lib/util/connect');
 const mongoose = require('mongoose');
 
-before(() => connect('mongodb://localhost:27019/bananas-test'));
+before(() => connect(process.env.MONGODB_URI));
 after(() => mongoose.connection.close());
 
 module.exports = {
