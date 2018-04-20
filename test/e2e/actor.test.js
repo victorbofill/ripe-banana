@@ -65,7 +65,7 @@ describe('Actor E2E API', () => {
     });
 
     it('updates an actor', () => {
-        wilder.pob = 'Miluakee, WI';
+        wilder.pob = 'Milwaukee, WI';
 
         return request.put(`/actors/${wilder._id}`)
             .send(wilder)
