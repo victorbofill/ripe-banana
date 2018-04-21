@@ -1,6 +1,7 @@
 const { assert } = require('chai');
 const request = require('./request');
 const { dropCollection } = require('./db');
+const Actor = require('../../lib/models/Actor');
 
 describe('Actor E2E API', () => {
 
@@ -90,10 +91,10 @@ describe('Actor E2E API', () => {
     it('bye felicia', () => {
         return request.delete(`/actors/${felicia._id}`)
             .then(() => {
-                return request.get(`/actors/${felicia._id}`);
+                return Actor.findById(felicia._id);
             })
-            .then(res => {
-                assert.equal(res.status, 404);
+            .then(found => {
+                assert.isNull(found);
             });
     });
 
