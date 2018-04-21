@@ -1,6 +1,7 @@
 const { assert } = require('chai');
 const request = require('./request');
 const { dropCollection } = require('./db');
+const Reviewer = require('../../lib/models/Reviewer');
 
 describe('Reviewer API', () => {
 
@@ -85,10 +86,10 @@ describe('Reviewer API', () => {
     it('deletes a reviewer', () => {
         return request.delete(`/reviewers/${guy._id}`)
             .then(() => {
-                return request.get(`/reviewers/${guy._id}`);
+                return Reviewer.findById(guy._id);
             })
-            .then(res => {
-                assert.equal(res.status, 404);
+            .then(found => {
+                assert.isNull(found);
             });
     });
 
