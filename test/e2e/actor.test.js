@@ -8,7 +8,7 @@ describe('Actor E2E API', () => {
     before (() => dropCollection('actors'));
 
     let felicia =  {
-        name: 'Felicity Day',
+        name: 'Felicia Day',
         dob: new Date(1979, 6, 28),
         pob: 'Huntsville, AL'
     };

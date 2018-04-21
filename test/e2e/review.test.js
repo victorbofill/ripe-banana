@@ -3,7 +3,7 @@ const request = require('./request');
 const { dropCollection } = require('./db');
 const Types = require('mongoose');
 
-describe.only('Review API', () => {
+describe('Review API', () => {
 
     let studio = {
         name: '21st Century Fox',
