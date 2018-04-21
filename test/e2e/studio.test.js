@@ -29,6 +29,7 @@ describe('Studio E2E Testing', () => {
 
     before(() => dropCollection('actors'));
     before(() => dropCollection('studios'));
+
     before(() => {
         return request.post('/studios')
             .send(fox)
