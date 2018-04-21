@@ -2,6 +2,8 @@ const { assert } = require('chai');
 const request = require('./request');
 const { dropCollection } = require('./db');
 
+// COMMENT TO MARK POINT PRIOR TO HEAVY WORK
+
 describe('Review API', () => {
 
     before(() => dropCollection('reviews'));
