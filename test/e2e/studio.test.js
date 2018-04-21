@@ -1,15 +1,17 @@
 const { assert } = require('chai');
 const request = require('./request');
 const { dropCollection } = require('./db');
+const Studio = require('../../lib/models/Studio');
 
-describe('Studio E2E Testing', () => {
+describe.only('Studio E2E Testing', () => {
 
     let universal = {
         name: 'Universal Studios',
         address: {
             state: 'CA',
             country: 'United States'
-        }
+        },
+        films: [{ title: 'Jumanji' }]
     };
 
     let fox = {
@@ -57,8 +59,8 @@ describe('Studio E2E Testing', () => {
             .send(universal)
             .then(checkOk)
             .then(( { body }) => {
-                const {_id, name, address } = universal;
-                assert.deepEqual(body, {_id, name, address });
+                const {_id, name, address, films } = universal;
+                assert.deepEqual(body, {_id, name, address, films });
             });
     });
 
@@ -69,6 +71,26 @@ describe('Studio E2E Testing', () => {
             .then(checkOk)
             .then(({ body }) => {
                 assert.deepEqual(body, [fox, universal].map(getAllFields));
+            });
+    });
+
+    it('deletes a studio', () => {
+        return request.delete(`/studios/${fox._id}`)
+            .then(() => {
+                return Studio.findById(fox._id);
+            })
+            .then(found => {
+                assert.isNull(found);
+            });
+    });
+
+    it('denies deletion of studio if it contains films', () => {
+        return request.delete(`/studios/${universal._id}`)
+            .then(() => {
+                return Studio.findById(universal._id);
+            })
+            .then(found => {
+                assert.ok(found);
             });
     });
 });
