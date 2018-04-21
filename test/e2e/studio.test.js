@@ -93,4 +93,11 @@ describe('Studio E2E Testing', () => {
                 assert.ok(found);
             });
     });
+
+    it('returns a 404 when studio is not found', () => {
+        return request.get(`/studios/${fox._id}`)
+            .then(res => {
+                assert.equal(res.status, 404);
+            });
+    });
 });
