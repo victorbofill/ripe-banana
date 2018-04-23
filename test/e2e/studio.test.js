@@ -93,8 +93,13 @@ describe('Studio E2E Testing', () => {
             .send(fox)
             .then(checkOk)
             .then(( { body }) => {
-                const {_id, name, address, films } = fox;
-                assert.deepEqual(body, {_id, name, address, films });
+                const {_id, name, address } = fox;
+                assert.deepEqual(body,
+                    {_id, name, address, films: [{
+                        _id: fox.films[0],
+                        title: 'Land Before Time 5'
+                    }]
+                    });
             });
     });
 
