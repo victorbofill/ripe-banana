@@ -3,7 +3,7 @@ const request = require('./request');
 const { dropCollection } = require('./db');
 const Film = require('../../lib/models/Film');
 
-describe('Film E2E Testing', () => {
+describe('Film E2E API', () => {
 
     let studio = {
         name: 'Universal Studios',
