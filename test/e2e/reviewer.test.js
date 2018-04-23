@@ -3,32 +3,56 @@ const request = require('./request');
 const { dropCollection } = require('./db');
 const Reviewer = require('../../lib/models/Reviewer');
 
-describe('Reviewer API', () => {
-
-    before(() => dropCollection('reviewers'));
+describe.only('Reviewer API', () => {
 
     let kael = {
         name: 'Pauline Kael',
         company: 'https://www.rottentomatoes.com/critic/pauline-kael/movies'
     };
-
+    
     let guy = {
         name: 'Some Guy',
         company: 'https://www.myopinionmatters.com'
     };
+    
+    let film = {
+        title: 'Jumanji'
+    };
+
+    let review = {
+        rating: 3,
+        review: 'kind of weird',
+        film: {
+            _id: null,
+            title: null,
+        }
+    };
+    
+    before(() => dropCollection('reviewers'));
+    before(() => dropCollection('films'));
+    before(() => {
+        return request.post('/films')
+            .send(film)
+            .then(({ body }) => {
+                film = body;
+                assert.ok(film._id);
+                review.film._id = film._id;
+                review.film.title = film.title;
+            });
+    });
     
     const checkOk = res => {
         if(!res.ok) throw res.error;
         return res;
     };
 
-    const getAllFields = ({ _id, name }) => {
+    const getAllFields = ({ _id, name, company }) => {
         return {
-            _id, name
+            _id, name, company
         };
     };
 
-    it('saves a reviewer', () => {
+    it('saves and gets a reviewer', () => {
 
         return request.post('/reviewers')
             .send(kael)
@@ -41,36 +65,56 @@ describe('Reviewer API', () => {
                     ...kael,
                     _id, __v
                 });
+
                 kael = body;
+                assert.ok(kael._id);
             });
     });
 
-    it('gets a reviewer by id', () => {
+    it('gets a reviewer by id, and reviews', () => {
+        review.reviewer = kael._id;
+        assert.equal(kael._id, review.reviewer);
 
-        return request.post('/reviewers')
-            .send(guy)
-            .then(checkOk)
+        return request.post('/reviews')
+            .send(review)
             .then(({ body }) => {
-                guy = body;
-                return request.get(`/reviewers/${guy._id}`);
+                review = body;
+                return request.get(`/reviewers/${kael._id}`);
             })
             .then(({ body }) => {
-                assert.deepEqual(body, guy);
+                const { _id, company, name } = kael;
+                assert.deepEqual(body, {
+                    _id, company, name,
+                    reviews: [{
+                        _id: review._id,
+                        rating: review.rating,
+                        review: review.review,
+                        film: {
+                            _id: film._id,
+                            title: film.title
+                        }
+                    }]
+                });
             });
     });
 
     it('updates a reviewer', () => {
-        guy.name = 'Mr. Some Guy';
-
-        return request.put(`/reviewers/${guy._id}`)
+        
+        return request.post('/reviewers')
             .send(guy)
-            .then(checkOk)
             .then(({ body }) => {
-                assert.deepEqual(body, guy);
-                return request.get(`/reviewers/${guy._id}`);
-            })
-            .then(({ body }) => {
-                assert.equal(body.name, guy.name);
+                guy = body;
+                guy.name = 'Mr. Some Guy';
+                return request.put(`/reviewers/${guy._id}`)
+                    .send(guy)
+                    .then(checkOk)
+                    .then(({ body }) => {
+                        assert.deepEqual(body, guy);
+                        return request.get(`/reviewers/${guy._id}`);
+                    })
+                    .then(({ body }) => {
+                        assert.equal(body.name, guy.name);
+                    });
             });
     });
 
@@ -97,7 +141,6 @@ describe('Reviewer API', () => {
         return request.get(`/reviewers/${guy._id}`)
             .then(response => {
                 assert.equal(response.status, 404);
-                assert.match(response.body.error, new RegExp(guy._id));
             });
     });
 

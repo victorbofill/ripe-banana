@@ -25,8 +25,6 @@ describe('Review API', () => {
 
     before(() => dropCollection('reviews'));
     before(() => dropCollection('reviewers'));
-    // before(() => dropCollection('actors'));
-    // before(() => dropCollection('studios'));
     before(() => dropCollection('films'));
 
     before(() => {
