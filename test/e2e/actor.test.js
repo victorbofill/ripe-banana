@@ -3,7 +3,7 @@ const request = require('./request');
 const { dropCollection } = require('./db');
 const Actor = require('../../lib/models/Actor');
 
-describe.only('Actor E2E API', () => {
+describe('Actor E2E API', () => {
 
     before (() => dropCollection('actors'));
 
