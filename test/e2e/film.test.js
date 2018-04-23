@@ -117,20 +117,10 @@ describe.only('Film E2E Testing', () => {
             });
     });
 
-//     it('denies deletion of studio if it contains films', () => {
-//         return request.delete(`/films/${fox._id}`)
-//             .then(() => {
-//                 return Studio.findById(fox._id);
-//             })
-//             .then(found => {
-//                 assert.ok(found);
-//             });
-//     });
-
-//     it('returns a 404 when film is not found', () => {
-//         return request.get(`/films/${universal._id}`)
-//             .then(res => {
-//                 assert.equal(res.status, 404);
-//             });
-//     });
+    it('returns a 404 when film is not found', () => {
+        return request.get(`/films/${lotr._id}`)
+            .then(res => {
+                assert.equal(res.status, 404);
+            });
+    });
 });
