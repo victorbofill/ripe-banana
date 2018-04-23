@@ -20,6 +20,18 @@ describe.only('Film E2E Testing', () => {
         pob: 'Huntsville, AL'
     };
 
+    let reviewer = {
+        name: 'Some Guy',
+        company: 'https://www.myopinionmatters.com'
+    };
+
+    let review = {
+        rating: 5,
+        review: 'It was ok',
+        createdAt: new Date(),
+        updateAt: this.createdAt
+    };
+
     let lotr = {
         title: 'Lord of the Rings',
         released: 2008,
@@ -29,6 +41,7 @@ describe.only('Film E2E Testing', () => {
     let trekWars = {
         title: 'Trek Wars',
         released: 2018,
+        reviews: []
     };
 
     const checkOk = res => {
@@ -39,6 +52,8 @@ describe.only('Film E2E Testing', () => {
     before(() => dropCollection('films'));
     before(() => dropCollection('actors'));
     before(() => dropCollection('studios'));
+    before(() => dropCollection('reviews'));
+    before(() => dropCollection('reviewers'));
 
     before(() => {
         return request.post('/actors')
@@ -68,9 +83,27 @@ describe.only('Film E2E Testing', () => {
             .then(( { body }) => trekWars = body)
             .then(() => {
                 studio.films = [trekWars];
+                review.film = trekWars;
             });
     });
 
+    before(() => {
+        return request.post('/reviewers')
+            .send(reviewer)
+            .then(checkOk)
+            .then(( { body }) => reviewer = body)
+            .then(() => {
+                review.reviewer = reviewer;
+            });
+    });
+
+    before(() => {
+        return request.post('/reviews')
+            .send(review)
+            .then(checkOk)
+            .then(( { body }) => review = body);
+    });
+    
     it('saves a film', () => {
         return request.post('/films')
             .send(lotr)
@@ -92,13 +125,22 @@ describe.only('Film E2E Testing', () => {
             .send(trekWars)
             .then(checkOk)
             .then(( { body }) => {
-                const {_id, __v, title, released, cast } = trekWars;
+                console.log("BODY: ", body);
+                const {_id, __v, title, released } = trekWars;
                 assert.deepEqual(body, {_id, __v, title, released,
                     studio: {
                         _id: trekWars.studio,
-                        name: 'Universal Studios'
+                        name: studio.name
                     },
-                    cast });
+                    cast: [{
+                        _id: trekWars.cast[0]._id,
+                        actor: {
+                            name: actor.name,
+                            _id: actor._id
+                        },
+                        part: trekWars.cast[0].part
+                    }]
+                });
             });
     });
 

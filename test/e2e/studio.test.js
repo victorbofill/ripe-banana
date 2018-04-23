@@ -97,7 +97,7 @@ describe('Studio E2E Testing', () => {
                 assert.deepEqual(body,
                     {_id, name, address, films: [{
                         _id: fox.films[0],
-                        title: 'Land Before Time 5'
+                        title: film.title
                     }]
                     });
             });
