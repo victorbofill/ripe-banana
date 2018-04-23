@@ -3,7 +3,7 @@ const request = require('./request');
 const { dropCollection } = require('./db');
 const Actor = require('../../lib/models/Actor');
 
-describe('Actor E2E API', () => {
+describe.only('Actor E2E API', () => {
 
     before (() => dropCollection('actors'));
 
@@ -11,14 +11,20 @@ describe('Actor E2E API', () => {
         name: 'Felicia Day',
         dob: new Date(1979, 6, 28),
         pob: 'Huntsville, AL',
-        films: []
     };
 
     let wilder = {
         name: 'Gene Wilder',
         dob: new Date(1933, 6, 11),
         pob: 'Milwaukee, MI',
-        films: ['Test']
+    };
+
+    let film = {
+        title: 'Dr.Horrible\'s Sing Along Blog',
+        released: 2008,
+        cast: [{
+            part: 'Penny'
+        }]
     };
 
     const checkOk = res => {
@@ -49,36 +55,46 @@ describe('Actor E2E API', () => {
             });
     });
 
-    it('gets an actor by id', () => {
+    it('gets an actor by id, with films', () => {
+        film.cast[0].actor = felicia._id;
+        assert.equal(felicia._id, film.cast[0].actor);
 
-        return request.post('/actors')
-            .send(wilder)
-            .then(checkOk)
+        return request.post('/films')
+            .send(film)
             .then(({ body }) => {
-                wilder = body;
-                return request.get(`/actors/${wilder._id}`);
+                film = body;
+                return request.get(`/actors/${felicia._id}`);
             })
             .then(({ body }) => {
-                const { dob } = body;
+                const { _id, name, dob, pob } = felicia;
                 assert.deepEqual(body, {
-                    ...wilder,
-                    dob
+                    _id, name, dob, pob,
+                    films: [{
+                        _id: film._id,
+                        title: film.title,
+                        released: film.released
+                    }]
                 });
             });
+
     });
 
     it('updates an actor', () => {
-        wilder.pob = 'Milwaukee, WI';
-
-        return request.put(`/actors/${wilder._id}`)
+        return request.post('/actors')
             .send(wilder)
-            .then(checkOk)
             .then(({ body }) => {
-                assert.deepEqual(body, wilder);
-                return request.get(`/actors/${wilder._id}`);
-            })
-            .then(({ body }) => {
-                assert.equal(body.role, wilder.role);
+                wilder = body;
+                wilder.pob = 'Milwaukee, WI';
+                return request.put(`/actors/${wilder._id}`)
+                    .send(wilder)
+                    .then(checkOk)
+                    .then(({ body }) => {
+                        assert.deepEqual(body, wilder);
+                        return request.get(`/actors/${wilder._id}`);
+                    })
+                    .then(({ body }) => {
+                        assert.equal(body.role, wilder.role);
+                    });
             });
     });
 
@@ -91,9 +107,9 @@ describe('Actor E2E API', () => {
     });
 
     it('deletes an actor', () => {
-        return request.delete(`/actors/${felicia._id}`)
+        return request.delete(`/actors/${wilder._id}`)
             .then(() => {
-                return Actor.findById(felicia._id);
+                return Actor.findById(wilder._id);
             })
             .then(found => {
                 assert.isNull(found);
@@ -101,9 +117,9 @@ describe('Actor E2E API', () => {
     });
 
     it('cannot delete an actor who is in a film', () => {
-        return request.delete(`/actors/${wilder._id}`)
+        return request.delete(`/actors/${felicia._id}`)
             .then(() => {
-                return Actor.findById(wilder._id);
+                return Actor.findById(felicia._id);
             })
             .then(found => {
                 assert.ok(found);
@@ -111,10 +127,9 @@ describe('Actor E2E API', () => {
     });
 
     it('returns 404 on non-existant id', () => {
-        return request.get(`/actors/${felicia._id}`)
+        return request.get(`/actors/${wilder._id}`)
             .then(res => {
                 assert.equal(res.status, 404);
-                assert.match(res.body.error, new RegExp(felicia._id));
             });
     });
 });
