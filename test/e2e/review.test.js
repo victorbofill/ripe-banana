@@ -1,51 +1,117 @@
 const { assert } = require('chai');
 const request = require('./request');
 const { dropCollection } = require('./db');
+const Types = require('mongoose');
 
-describe.only('Review API', () => {
+describe('Review API', () => {
+
+    let studio = {
+        name: '21st Century Fox',
+        address: {
+            state: 'CA',
+            country: 'United States'
+        }
+    };
+
+    let reviewer = {
+        name: 'Some Guy',
+        company: 'https://www.myopinionmatters.com'
+    };
+
+    let actor =  {
+        name: 'Felicity Day',
+        dob: new Date(1979, 6, 28),
+        pob: 'Huntsville, AL'
+    };
+
+    // let film = {
+    //     title: 'Land Before Time 5',
+    //     studio: Types.ObjectId(), /* eslint-disable-line */
+    //     released: 2027,
+    //     cast: [{
+    //         part: 'dinosaur',
+    //         actor: Types.ObjectId() /* eslint-disable-line */
+    //     }]
+    // };
 
     before(() => dropCollection('reviews'));
-    
-    let reviewer = {
-        name: 'Pauline Kael'
-    };
+    before(() => dropCollection('reviewers'));
+    before(() => dropCollection('actors'));
+    before(() => dropCollection('studios'));
+    before(() => dropCollection('films'));
 
-    let film = {
-        title: 'Jumanji'
-    };
+    before(() => {
+        return request.post('/studios')
+            .send(studio)
+            .then(checkOk)
+            .then(({ body }) => studio = body);
+    });
 
-    let good = {
-        rating: 5,
-    };
-
-    let bad = {
-        rating: 1,
-    };
-    
     before(() => {
         return request.post('/reviewers')
             .send(reviewer)
-            .then(({ body }) => {
-                reviewer = body;
-                assert.ok(reviewer._id);
-                bad.reviewer = reviewer._id;
-                good.reviewer = reviewer._id;
-            
-                return request.post(`/films`)
-                    .send(film)
-                    .then(({ body }) => {
-                        film = body;
-                        assert.ok(film._id);
-                        bad.film = film._id;
-                        good.film = film._id;
-                    });
-            });
+            .then(checkOk)
+            .then(({ body }) => reviewer = body);
     });
+
+    before(() => {
+        return request.post('/actors')
+            .send(actor)
+            .then(checkOk)
+            .then(({ body }) => actor = body);
+    });
+
+    // before(() => {
+    //     return request.post('/films')
+    //         .send(film)
+    //         .then(checkOk)
+    //         .then(({ body }) => film = body);
+    // });
+
+    let review = {
+        rating: '5',
+        reviewer: {
+            name: 'Some Guy',
+            company: 'https://www.myopinionmatters.com'
+        },
+        film: {
+            title: 'Land Before Time 5',
+            studio: {
+                name: 'Universal'
+            },
+            released: 2027,
+            cast: [{
+                part: 'dinosaur',
+                actor: {
+                    name: 'Little Foot'
+                }
+            }]
+        }
+    };
 
     const checkOk = res => {
         if(!res.ok) throw res.error;
         return res;
     };
+
+    // it('saves and gets a review', () => {
+    //     return request.post('/reviews')
+    //         .send(review)
+    //         .then(checkOk)
+    //         .then(( {body }) => {
+    //             const { _id, __v } = body;
+    //             assert.ok(_id);
+    //             assert.equal(__v, 0);
+    //             assert.deepEqual(body, {
+    //                 _id, __v,
+    //                 ...review
+    //             });
+    //             review = body;
+    //         });
+    // });
+
+    // it('gets a review by id', () => {
+    // });
 
     const getAllFields = ({ _id, name }) => {
         return {
@@ -54,77 +120,12 @@ describe.only('Review API', () => {
         };
     };
 
-    it('saves a review', () => {
-
-        return request.post('/reviews')
-            .send(good)
-            .then(checkOk)
-            .then(({ body }) => {
-                const { _id, __v, uploaded, rating } = body;
-                assert.ok(_id);
-                assert.equal(__v, 0);
-                assert.deepEqual(body, {
-                    ...good,
-                    _id, __v, uploaded, rating
-                });
-                good = body;
-            });
-    });
-
-    // it('gets a reviewer by id', () => {
-
-    //     return request.post('/reviewers')
-    //         .send(guy)
-    //         .then(checkOk)
-    //         .then(({ body }) => {
-    //             guy = body;
-    //             return request.get(`/reviewers/${guy._id}`);
-    //         })
-    //         .then(({ body }) => {
-    //             assert.deepEqual(body, guy);
-    //         });
+    // it('gets all reviews', () => {
     // });
 
-    // it('updates a reviewer', () => {
-    //     guy.name = 'Mr. Some Guy';
-
-    //     return request.put(`/reviewers/${guy._id}`)
-    //         .send(guy)
-    //         .then(checkOk)
-    //         .then(({ body }) => {
-    //             assert.deepEqual(body, guy);
-    //             return request.get(`/reviewers/${guy._id}`);
-    //         })
-    //         .then(({ body }) => {
-    //             assert.equal(body.name, guy.name)
-    //         });
+    // it('deletes a review', () => {
     // });
 
-    // it('gets all reviewers', () => {
-    //     return request.get('/reviewers')
-    //         .then(checkOk)
-    //         .then(({ body }) => {
-    //             assert.deepEqual(body, [kael, guy].map(getAllFields));
-    //         });
-
+    // it('returns a 404 when review is not found', () => {
     // });
-
-    // it('deletes a reviewer', () => {
-    //     return request.delete(`/reviewers/${guy._id}`)
-    //         .then(() => {
-    //             return request.get(`/reviewers/${guy._id}`);
-    //         })
-    //         .then(res => {
-    //             assert.equal(res.status, 404);
-    //         });
-    // });
-
-    // it('returns 404 on get of non-existent id', () => {
-    //     return request.get(`/reviewers/${guy._id}`)
-    //         .then(response => {
-    //             assert.equal(response.status, 404);
-    //             assert.match(response.body.error, new RegExp(guy._id));
-    //         });
-    // });
-
 });

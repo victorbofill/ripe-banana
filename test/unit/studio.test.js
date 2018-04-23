@@ -10,7 +10,8 @@ describe('Studio model', () => {
                 city: 'Hollywood Land',
                 state: 'CA',
                 country: 'United States',
-            }
+            },
+            films: []
         };
 
         const studio = new Studio(data);
