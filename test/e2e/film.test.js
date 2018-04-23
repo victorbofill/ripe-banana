@@ -3,7 +3,7 @@ const request = require('./request');
 const { dropCollection } = require('./db');
 const Film = require('../../lib/models/Film');
 
-describe('Film E2E Testing', () => {
+describe.only('Film E2E Testing', () => {
 
     let studio = {
         name: 'Universal Studios',
@@ -92,8 +92,13 @@ describe('Film E2E Testing', () => {
             .send(trekWars)
             .then(checkOk)
             .then(( { body }) => {
-                const {_id, __v, title, released, studio, cast } = trekWars;
-                assert.deepEqual(body, {_id, __v, title, released, studio, cast });
+                const {_id, __v, title, released, cast } = trekWars;
+                assert.deepEqual(body, {_id, __v, title, released,
+                    studio: {
+                        _id: trekWars.studio,
+                        name: 'Universal Studios'
+                    },
+                    cast });
             });
     });
 
