@@ -11,7 +11,6 @@ describe('Film E2E Testing', () => {
             state: 'CA',
             country: 'United States'
         },
-        films: []
     };
 
     let actor =  {

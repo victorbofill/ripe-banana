@@ -2,7 +2,6 @@ const { assert } = require('chai');
 const request = require('./request');
 const { dropCollection } = require('./db');
 const Review = require('../../lib/models/Review');
-const Types = require('mongoose');
 
 describe('Review API', () => {
 

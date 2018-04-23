@@ -10,7 +10,6 @@ describe('Actor model', () => {
             name: 'Felicity Day',
             dob: new Date(1979, 6, 28),
             pob: 'Huntsville, AL',
-            films: []
         };
 
         const actor = new Actor(data);
