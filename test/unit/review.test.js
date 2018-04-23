@@ -3,7 +3,7 @@ const { Types } = require('mongoose');
 const Review = require('../../lib/models/Review');
 const { getErrors } = require('./helpers');
 
-describe('Review model', () => {
+describe.only('Review model', () => {
 
     it('valid good model', () => {
         const uploaded = new Date();
