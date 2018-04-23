@@ -7,7 +7,7 @@ describe('Review model', () => {
 
     it('valid good model', () => {
         const uploaded = new Date();
-        const rating = '5';
+        const rating = 5;
         const data = {
             rating: 5,
             reviewer: Types.ObjectId(), /* eslint-disable-line */
@@ -15,7 +15,6 @@ describe('Review model', () => {
             film: Types.ObjectId(), /* eslint-disable-line */
             uploaded: uploaded
         };
-
 
         const review = new Review(data);
         data._id = review._id;
@@ -26,12 +25,38 @@ describe('Review model', () => {
         assert.isUndefined(review.validateSync());
     });
 
-    it('required rating', () => {
+    it('required all working', () => {
         const review = new Review({});
         const errors = getErrors(review.validateSync(), 3);
         assert.equal(errors.rating.kind, 'required');
         assert.equal(errors.film.kind, 'required');
         assert.equal(errors.reviewer.kind, 'required');
+    });
+
+    it('rating max works', () => {
+        const data = {
+            rating: 10,
+            reviewer: Types.ObjectId(), /* eslint-disable-line */
+            film: Types.ObjectId(), /* eslint-disable-line */
+        };
+
+        const review = new Review(data);
+        const errors = getErrors(review.validateSync(), 1);
+
+        assert.equal(errors.rating.kind, 'max');
+    });
+
+    it('rating min works', () => {
+        const data = {
+            rating: -1,
+            reviewer: Types.ObjectId(), /* eslint-disable-line */
+            film: Types.ObjectId(), /* eslint-disable-line */
+        };
+
+        const review = new Review(data);
+        const errors = getErrors(review.validateSync(), 1);
+
+        assert.equal(errors.rating.kind, 'min');
     });
 
     it('review must be a tweet', () => {
