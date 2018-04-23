@@ -3,7 +3,7 @@ const request = require('./request');
 const { dropCollection } = require('./db');
 const Film = require('../../lib/models/Film');
 
-describe.only('Film E2E Testing', () => {
+describe('Film E2E Testing', () => {
 
     let studio = {
         name: 'Universal Studios',
@@ -103,7 +103,7 @@ describe.only('Film E2E Testing', () => {
             .then(checkOk)
             .then(( { body }) => review = body);
     });
-    
+
     it('saves a film', () => {
         return request.post('/films')
             .send(lotr)
@@ -125,7 +125,7 @@ describe.only('Film E2E Testing', () => {
             .send(trekWars)
             .then(checkOk)
             .then(( { body }) => {
-                console.log("BODY: ", body);
+
                 const {_id, __v, title, released } = trekWars;
                 assert.deepEqual(body, {_id, __v, title, released,
                     studio: {
@@ -139,7 +139,10 @@ describe.only('Film E2E Testing', () => {
                             _id: actor._id
                         },
                         part: trekWars.cast[0].part
-                    }]
+                    }],
+                    reviews: [
+                        { _id: review._id}
+                    ]
                 });
             });
     });
