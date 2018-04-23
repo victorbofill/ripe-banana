@@ -3,7 +3,7 @@ const request = require('./request');
 const { dropCollection } = require('./db');
 const Review = require('../../lib/models/Review');
 
-describe('Review API', () => {
+describe('Review E2E API', () => {
 
     let reviewer = {
         name: 'Pauline Kael'
