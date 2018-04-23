@@ -10,13 +10,15 @@ describe('Actor E2E API', () => {
     let felicia =  {
         name: 'Felicia Day',
         dob: new Date(1979, 6, 28),
-        pob: 'Huntsville, AL'
+        pob: 'Huntsville, AL',
+        films: []
     };
 
     let wilder = {
         name: 'Gene Wilder',
         dob: new Date(1933, 6, 11),
-        pob: 'Milwaukee, MI'
+        pob: 'Milwaukee, MI',
+        films: ['Test']
     };
 
     const checkOk = res => {
@@ -88,13 +90,23 @@ describe('Actor E2E API', () => {
             });
     });
 
-    it('bye felicia', () => {
+    it('deletes an actor', () => {
         return request.delete(`/actors/${felicia._id}`)
             .then(() => {
                 return Actor.findById(felicia._id);
             })
             .then(found => {
                 assert.isNull(found);
+            });
+    });
+
+    it('cannot delete an actor who is in a film', () => {
+        return request.delete(`/actors/${wilder._id}`)
+            .then(() => {
+                return Actor.findById(wilder._id);
+            })
+            .then(found => {
+                assert.ok(found);
             });
     });
 
