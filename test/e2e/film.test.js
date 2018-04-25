@@ -21,7 +21,10 @@ describe('Film E2E API', () => {
 
     let reviewer = {
         name: 'Some Guy',
-        company: 'https://www.myopinionmatters.com'
+        company: 'https://www.myopinionmatters.com',
+        email: 'thisguy@email.com',
+        password: 'abc',
+        role: 'user'
     };
 
     let review = {
@@ -42,6 +45,8 @@ describe('Film E2E API', () => {
         released: 2018,
         reviews: []
     };
+
+    let token = null;
 
     const checkOk = res => {
         if(!res.ok) throw res.error;
@@ -87,17 +92,19 @@ describe('Film E2E API', () => {
     });
 
     before(() => {
-        return request.post('/reviewers')
+        return request.post('/auth/signup')
             .send(reviewer)
             .then(checkOk)
-            .then(( { body }) => reviewer = body)
-            .then(() => {
-                review.reviewer = reviewer;
+            .then(( { body }) => {
+                reviewer._id = body._id;
+                token = body.token;
+                review.reviewer = reviewer._id;
             });
     });
 
     before(() => {
         return request.post('/reviews')
+            .set('Authorization', token)
             .send(review)
             .then(checkOk)
             .then(( { body }) => review = body);
@@ -154,7 +161,7 @@ describe('Film E2E API', () => {
             .then(({ body }) => {
                 assert.deepEqual(body, [trekWars, lotr].map(getAllFields));
             });
-    });
+    }).timeout(2500);
 
     it('deletes a film', () => {
         return request.delete(`/films/${lotr._id}`)
