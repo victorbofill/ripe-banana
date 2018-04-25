@@ -12,6 +12,13 @@ describe('Studio E2E API', () => {
         role: 'admin'
     };
 
+    const nonAdmin = {
+        name: 'Bob',
+        email: 'test@someone.com',
+        password: 'secret',
+        role: 'user'
+    };
+
     let universal = {
         name: 'Universal Studios',
         address: {
@@ -48,6 +55,15 @@ describe('Studio E2E API', () => {
     before(() => dropCollection('actors'));
     before(() => dropCollection('studios'));
     before(() => dropCollection('films'));
+
+    before(() => {
+        return request.post('/auth/signup')
+            .send(nonAdmin)
+            .then(checkOk)
+            .then(( { body }) => {
+                nonAdmin._id = body._id;
+            });
+    });
 
     before(() => {
         return request.post('/auth/signup')
@@ -154,6 +170,14 @@ describe('Studio E2E API', () => {
             })
             .then(found => {
                 assert.ok(found);
+            });
+    });
+
+    it('returns error if non-admin attempts to post', () => {
+        return request.post('/studios')
+            .set('Authorization', nonAdmin.role)
+            .then(({ res }) => {
+                assert.equal(res.statusCode, 403);
             });
     });
 

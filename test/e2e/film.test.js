@@ -27,6 +27,13 @@ describe('Film E2E API', () => {
         role: 'admin'
     };
 
+    const nonAdmin = {
+        name: 'Bob',
+        email: 'test@someone.com',
+        password: 'secret',
+        role: 'user'
+    };
+
     let review = {
         rating: 5,
         review: 'It was ok',
@@ -69,6 +76,15 @@ describe('Film E2E API', () => {
                 review.reviewer = reviewer._id;
 
                 assert.ok(reviewer.role);
+            });
+    });
+
+    before(() => {
+        return request.post('/auth/signup')
+            .send(nonAdmin)
+            .then(checkOk)
+            .then(( { body }) => {
+                nonAdmin._id = body._id;
             });
     });
 
@@ -177,6 +193,14 @@ describe('Film E2E API', () => {
             })
             .then(found => {
                 assert.isNull(found);
+            });
+    });
+
+    it('returns error if non-admin attempts to post', () => {
+        return request.post('/films')
+            .set('Authorization', nonAdmin.role)
+            .then(({ res }) => {
+                assert.equal(res.statusCode, 403);
             });
     });
 
