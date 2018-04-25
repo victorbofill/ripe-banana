@@ -3,7 +3,7 @@ const request = require('./request');
 const { dropCollection, createToken } = require('./db');
 const Actor = require('../../lib/models/Actor');
 
-describe.only('Actor E2E API', () => {
+describe.skip('Actor E2E API', () => {
 
     let token = '';
 
