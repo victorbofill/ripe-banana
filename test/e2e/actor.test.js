@@ -3,10 +3,9 @@ const request = require('./request');
 const { dropCollection, createToken } = require('./db');
 const Actor = require('../../lib/models/Actor');
 
-describe('Actor E2E API', () => {
+describe.only('Actor E2E API', () => {
 
     let token = '';
-
 
     before(() => createToken().then(t => token = t));
     before (() => dropCollection('actors'));
@@ -24,7 +23,7 @@ describe('Actor E2E API', () => {
     };
 
     let film = {
-        title: 'Dr.Horrible\'s Sing Along Blog',
+        title: `Dr.Horrible's Sing Along Blog'`,
         released: 2008,
         cast: []
     };
