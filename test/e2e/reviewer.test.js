@@ -3,7 +3,7 @@ const request = require('./request');
 const { dropCollection } = require('./db');
 const Reviewer = require('../../lib/models/Reviewer');
 
-describe.only('Reviewer E2E API', () => {
+describe('Reviewer E2E API', () => {
 
     let kael = {
         name: 'Pauline Kael',
@@ -34,6 +34,8 @@ describe.only('Reviewer E2E API', () => {
         }
     };
     
+    let token = null;
+    
     before(() => dropCollection('reviewers'));
     before(() => dropCollection('films'));
     before(() => {
@@ -50,6 +52,7 @@ describe.only('Reviewer E2E API', () => {
                     .send(kael)
                     .then (({ body }) => {
                         kael._id = body._id;
+                        token = body.token;
                         return request
                             .post('/auth/signup')
                             .send(guy)
@@ -83,6 +86,7 @@ describe.only('Reviewer E2E API', () => {
         assert.equal(kael._id, review.reviewer);
 
         return request.post('/reviews')
+            .set('Authorization', token)
             .send(review)
             .then(({ body }) => {
                 review = body;

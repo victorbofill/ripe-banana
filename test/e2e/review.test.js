@@ -6,8 +6,14 @@ const Review = require('../../lib/models/Review');
 describe('Review E2E API', () => {
 
     let reviewer = {
-        name: 'Pauline Kael'
+        name: 'Pauline Kael',
+        company: 'https://www.rottentomatoes.com/critic/pauline-kael/movies',
+        email: 'me@me.com',
+        password: 'abc123',
+        role: 'user'
     };
+
+    let token = null;
 
     let film = {
         title: 'Jumanji'
@@ -27,11 +33,13 @@ describe('Review E2E API', () => {
     before(() => dropCollection('films'));
 
     before(() => {
-        return request.post('/reviewers')
+        return request.post('/auth/signup')
             .send(reviewer)
             .then(({ body }) => {
-                reviewer = body;
+                reviewer._id = body._id;
+                token = body.token;
                 assert.ok(reviewer._id);
+                assert.ok(token);
                 bad.reviewer = reviewer._id;
                 good.reviewer = reviewer._id;
             
@@ -57,9 +65,20 @@ describe('Review E2E API', () => {
         };
     };
 
-    it('saves and gets a review', () => {
+    it('cannot post test without log in', () => {
 
         return request.post('/reviews')
+            .send(good)
+            .then(response => {
+                assert.equal(response.status, 400);
+                assert.equal(response.body.error, 'No token found');
+            });
+    });
+
+    it('saves and gets a review, by logged in user', () => {
+
+        return request.post('/reviews')
+            .set('Authorization', token)
             .send(good)
             .then(checkOk)
             .then(({ body }) => {
@@ -76,6 +95,7 @@ describe('Review E2E API', () => {
 
     it('gets a review by id', () => {
         return request.post('/reviews')
+            .set('Authorization', token)
             .send(bad)
             .then(checkOk)
             .then(({ body }) => {
@@ -87,10 +107,11 @@ describe('Review E2E API', () => {
             });
     });
 
-    it('updates a review', () => {
+    it('updates a review, by logged in user', () => {
         bad.review = 'truly terrible';
 
         return request.put(`/reviews/${bad._id}`)
+            .set('Authorization', token)
             .send(bad)
             .then(checkOk)
             .then(({ body }) => {

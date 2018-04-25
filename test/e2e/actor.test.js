@@ -7,7 +7,6 @@ describe('Actor E2E API', () => {
 
     let token = '';
 
-
     before(() => createToken().then(t => token = t));
     before (() => dropCollection('actors'));
 
