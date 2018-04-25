@@ -7,12 +7,18 @@ describe('Reviewer E2E API', () => {
 
     let kael = {
         name: 'Pauline Kael',
-        company: 'https://www.rottentomatoes.com/critic/pauline-kael/movies'
+        company: 'https://www.rottentomatoes.com/critic/pauline-kael/movies',
+        email: 'kael@email.com',
+        password: 'abc',
+        role: 'admin'
     };
     
     let guy = {
         name: 'Some Guy',
-        company: 'https://www.myopinionmatters.com'
+        company: 'https://www.myopinionmatters.com',
+        email: 'thisguy@email.com',
+        password: 'abc',
+        role: 'user'
     };
     
     let film = {
@@ -28,6 +34,8 @@ describe('Reviewer E2E API', () => {
         }
     };
     
+    let token = null;
+    
     before(() => dropCollection('reviewers'));
     before(() => dropCollection('films'));
     before(() => {
@@ -38,6 +46,18 @@ describe('Reviewer E2E API', () => {
                 assert.ok(film._id);
                 review.film._id = film._id;
                 review.film.title = film.title;
+
+                return request
+                    .post('/auth/signup')
+                    .send(kael)
+                    .then (({ body }) => {
+                        kael._id = body._id;
+                        token = body.token;
+                        return request
+                            .post('/auth/signup')
+                            .send(guy)
+                            .then (({ body }) => guy._id = body._id);
+                    });
             });
     });
     
@@ -52,23 +72,13 @@ describe('Reviewer E2E API', () => {
         };
     };
 
-    it('saves and gets a reviewer', () => {
-
-        return request.post('/reviewers')
-            .send(kael)
+    it('gets all reviewers', () => {
+        return request.get('/reviewers')
             .then(checkOk)
             .then(({ body }) => {
-                const { _id, __v } = body;
-                assert.ok(_id);
-                assert.equal(__v, 0);
-                assert.deepEqual(body, {
-                    ...kael,
-                    _id, __v
-                });
-
-                kael = body;
-                assert.ok(kael._id);
+                assert.deepEqual(body, [kael, guy].map(getAllFields));
             });
+
     });
 
     it('gets a reviewer by id, and reviews', () => {
@@ -76,6 +86,7 @@ describe('Reviewer E2E API', () => {
         assert.equal(kael._id, review.reviewer);
 
         return request.post('/reviews')
+            .set('Authorization', token)
             .send(review)
             .then(({ body }) => {
                 review = body;
@@ -96,35 +107,6 @@ describe('Reviewer E2E API', () => {
                     }]
                 });
             });
-    });
-
-    it('updates a reviewer', () => {
-        
-        return request.post('/reviewers')
-            .send(guy)
-            .then(({ body }) => {
-                guy = body;
-                guy.name = 'Mr. Some Guy';
-                return request.put(`/reviewers/${guy._id}`)
-                    .send(guy)
-                    .then(checkOk)
-                    .then(({ body }) => {
-                        assert.deepEqual(body, guy);
-                        return request.get(`/reviewers/${guy._id}`);
-                    })
-                    .then(({ body }) => {
-                        assert.equal(body.name, guy.name);
-                    });
-            });
-    });
-
-    it('gets all reviewers', () => {
-        return request.get('/reviewers')
-            .then(checkOk)
-            .then(({ body }) => {
-                assert.deepEqual(body, [kael, guy].map(getAllFields));
-            });
-
     });
 
     it('deletes a reviewer', () => {

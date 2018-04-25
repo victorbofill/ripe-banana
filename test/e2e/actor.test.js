@@ -1,11 +1,36 @@
 const { assert } = require('chai');
 const request = require('./request');
-const { dropCollection } = require('./db');
+const { dropCollection, createToken } = require('./db');
 const Actor = require('../../lib/models/Actor');
 
-describe('Actor E2E API', () => {
+describe.only('Actor E2E API', () => {
+
+    let token = '';
+    let role = '';
+
+    let reviewer = {
+        name: 'Lady',
+        email: 'me@me.com',
+        password: 'abc',
+        role: 'admin'
+    }
 
     before (() => dropCollection('actors'));
+    before(() => dropCollection('reviewers'));
+
+    before(() => {
+        return request.post('/auth/signup')
+            .send(reviewer)
+            .then(checkOk)
+            .then(( { body }) => {
+                reviewer._id = body._id;
+                token = body.token;
+                role = body.role;
+
+                assert.ok(role);
+            });
+    });
+
 
     let felicia =  {
         name: 'Felicia Day',
@@ -20,7 +45,7 @@ describe('Actor E2E API', () => {
     };
 
     let film = {
-        title: 'Dr.Horrible\'s Sing Along Blog',
+        title: `Dr.Horrible's Sing Along Blog'`,
         released: 2008,
         cast: []
     };
