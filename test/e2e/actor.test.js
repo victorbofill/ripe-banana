@@ -1,19 +1,19 @@
 const { assert } = require('chai');
 const request = require('./request');
-const { dropCollection, createToken } = require('./db');
+const { dropCollection } = require('./db');
 const Actor = require('../../lib/models/Actor');
 
 describe.only('Actor E2E API', () => {
 
-    let token = '';
+    // let token = '';
     let role = '';
 
-    let reviewer = {
+    const reviewer = {
         name: 'Lady',
         email: 'me@me.com',
         password: 'abc',
         role: 'admin'
-    }
+    };
 
     before (() => dropCollection('actors'));
     before(() => dropCollection('reviewers'));
@@ -24,7 +24,7 @@ describe.only('Actor E2E API', () => {
             .then(checkOk)
             .then(( { body }) => {
                 reviewer._id = body._id;
-                token = body.token;
+                // token = body.token;
                 role = body.role;
 
                 assert.ok(role);

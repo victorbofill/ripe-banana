@@ -5,7 +5,7 @@ const Reviewer = require('../../lib/models/Reviewer');
 
 describe('Reviewer E2E API', () => {
 
-    let kael = {
+    const kael = {
         name: 'Pauline Kael',
         company: 'https://www.rottentomatoes.com/critic/pauline-kael/movies',
         email: 'kael@email.com',
@@ -13,7 +13,7 @@ describe('Reviewer E2E API', () => {
         role: 'admin'
     };
     
-    let guy = {
+    const guy = {
         name: 'Some Guy',
         company: 'https://www.myopinionmatters.com',
         email: 'thisguy@email.com',
