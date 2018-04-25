@@ -114,6 +114,7 @@ describe('Review E2E API', () => {
 
         return request.put(`/reviews/${bad._id}`)
             .set('Authorization', token)
+            .set('User', reviewer._id)
             .send(bad)
             .then(checkOk)
             .then(({ body }) => {
@@ -141,6 +142,8 @@ describe('Review E2E API', () => {
 
     it('deletes a review', () => {
         return request.delete(`/reviews/${bad._id}`)
+            .set('Authorization', token)
+            .set('User', reviewer._id)
             .then(() => {
                 return Review.findById(bad._id);
             })

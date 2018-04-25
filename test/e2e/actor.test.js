@@ -12,6 +12,13 @@ describe('Actor E2E API', () => {
         role: 'admin'
     };
 
+    const nonAdmin = {
+        name: 'Bob',
+        email: 'test@someone.com',
+        password: 'secret',
+        role: 'user'
+    };
+
     before (() => dropCollection('actors'));
     before(() => dropCollection('reviewers'));
 
@@ -26,6 +33,14 @@ describe('Actor E2E API', () => {
             });
     });
 
+    before(() => {
+        return request.post('/auth/signup')
+            .send(nonAdmin)
+            .then(checkOk)
+            .then(( { body }) => {
+                nonAdmin._id = body._id;
+            });
+    });
 
     let felicia =  {
         name: 'Felicia Day',
@@ -148,6 +163,14 @@ describe('Actor E2E API', () => {
             })
             .then(found => {
                 assert.ok(found);
+            });
+    });
+
+    it('returns error if non-admin attempts to post', () => {
+        return request.post('/actors')
+            .set('Authorization', nonAdmin.role)
+            .then(({ res }) => {
+                assert.equal(res.statusCode, 403);
             });
     });
 
