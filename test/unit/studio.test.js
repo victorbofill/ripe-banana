@@ -3,6 +3,7 @@ const { getErrors } = require('./helpers');
 const Studio = require('../../lib/models/Studio');
 
 describe('Studio model', () => {
+
     it('valid good model', () => {
         const data = {
             name: 'Universal',

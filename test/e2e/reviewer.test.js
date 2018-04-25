@@ -39,24 +39,29 @@ describe('Reviewer E2E API', () => {
     before(() => dropCollection('reviewers'));
     before(() => dropCollection('films'));
     before(() => {
-        return request.post('/films')
-            .send(film)
-            .then(({ body }) => {
-                film = body;
-                assert.ok(film._id);
-                review.film._id = film._id;
-                review.film.title = film.title;
+        return request
+            .post('/auth/signup')
+            .send(kael)
+            .then (({ body }) => {
+                kael._id = body._id;
+                token = body.token;
+                assert.ok(body.role);
 
                 return request
                     .post('/auth/signup')
-                    .send(kael)
+                    .send(guy)
                     .then (({ body }) => {
-                        kael._id = body._id;
-                        token = body.token;
-                        return request
-                            .post('/auth/signup')
-                            .send(guy)
-                            .then (({ body }) => guy._id = body._id);
+                        guy._id = body._id;
+
+                        return request.post('/films')
+                            .set('Authorization', kael.role)
+                            .send(film)
+                            .then(({ body }) => {
+                                film = body;
+                                assert.ok(film._id);
+                                review.film._id = film._id;
+                                review.film.title = film.title;
+                            });
                     });
             });
     });

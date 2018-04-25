@@ -4,9 +4,12 @@ const { dropCollection } = require('./db');
 const Actor = require('../../lib/models/Actor');
 
 describe('Actor E2E API', () => {
+<<<<<<< HEAD
 
     // let token = '';
     let role = '';
+=======
+>>>>>>> dev
 
     const reviewer = {
         name: 'Lady',
@@ -24,10 +27,8 @@ describe('Actor E2E API', () => {
             .then(checkOk)
             .then(( { body }) => {
                 reviewer._id = body._id;
-                // token = body.token;
-                role = body.role;
 
-                assert.ok(role);
+                assert.ok(body.role);
             });
     });
 
@@ -64,6 +65,7 @@ describe('Actor E2E API', () => {
     it('saves and gets an actor', () => {
 
         return request.post('/actors')
+            .set('Authorization', reviewer.role)
             .send(felicia)
             .then(checkOk)
             .then(({ body }) => {
@@ -84,6 +86,7 @@ describe('Actor E2E API', () => {
         assert.equal(felicia._id, film.cast[0].actor);
 
         return request.post('/films')
+            .set('Authorization', reviewer.role)
             .send(film)
             .then(({ body }) => {
                 film = body;
@@ -105,11 +108,13 @@ describe('Actor E2E API', () => {
 
     it('updates an actor', () => {
         return request.post('/actors')
+            .set('Authorization', reviewer.role)
             .send(wilder)
             .then(({ body }) => {
                 wilder = body;
                 wilder.pob = 'Milwaukee, WI';
                 return request.put(`/actors/${wilder._id}`)
+                    .set('Authorization', reviewer.role)
                     .send(wilder)
                     .then(checkOk)
                     .then(({ body }) => {
@@ -132,6 +137,7 @@ describe('Actor E2E API', () => {
 
     it('deletes an actor', () => {
         return request.delete(`/actors/${wilder._id}`)
+            .set('Authorization', reviewer.role)
             .then(() => {
                 return Actor.findById(wilder._id);
             })
@@ -142,6 +148,7 @@ describe('Actor E2E API', () => {
 
     it('cannot delete an actor who is in a film', () => {
         return request.delete(`/actors/${felicia._id}`)
+            .set('Authorization', reviewer.role)
             .then(() => {
                 return Actor.findById(felicia._id);
             })

@@ -5,6 +5,13 @@ const Studio = require('../../lib/models/Studio');
 
 describe('Studio E2E API', () => {
 
+    const reviewer = {
+        name: 'Lady',
+        email: 'me@me.com',
+        password: 'abc',
+        role: 'admin'
+    };
+
     let universal = {
         name: 'Universal Studios',
         address: {
@@ -43,7 +50,19 @@ describe('Studio E2E API', () => {
     before(() => dropCollection('films'));
 
     before(() => {
+        return request.post('/auth/signup')
+            .send(reviewer)
+            .then(checkOk)
+            .then(( { body }) => {
+                reviewer._id = body._id;
+
+                assert.ok(body.role);
+            });
+    });
+
+    before(() => {
         return request.post('/actors')
+            .set('Authorization', reviewer.role)
             .send(actor)
             .then(checkOk)
             .then(({ body }) => actor = body)
@@ -54,6 +73,7 @@ describe('Studio E2E API', () => {
 
     before(() => {
         return request.post('/films')
+            .set('Authorization', reviewer.role)
             .send(film)
             .then(checkOk)
             .then(( { body }) => film = body)
@@ -64,6 +84,7 @@ describe('Studio E2E API', () => {
 
     before(() => {
         return request.post('/studios')
+            .set('Authorization', reviewer.role)
             .send(fox)
             .then(checkOk)
             .then(({ body }) => fox = body)
@@ -74,6 +95,7 @@ describe('Studio E2E API', () => {
 
     it('saves a studio', () => {
         return request.post('/studios')
+            .set('Authorization', reviewer.role)
             .send(universal)
             .then(checkOk)
             .then(( {body }) => {
@@ -115,6 +137,7 @@ describe('Studio E2E API', () => {
 
     it('deletes a studio', () => {
         return request.delete(`/studios/${universal._id}`)
+            .set('Authorization', reviewer.role)
             .then(() => {
                 return Studio.findById(universal._id);
             })
@@ -125,6 +148,7 @@ describe('Studio E2E API', () => {
 
     it('denies deletion of studio if it contains films', () => {
         return request.delete(`/studios/${fox._id}`)
+            .set('Authorization', reviewer.role)
             .then(() => {
                 return Studio.findById(fox._id);
             })

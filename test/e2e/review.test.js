@@ -10,7 +10,7 @@ describe('Review E2E API', () => {
         company: 'https://www.rottentomatoes.com/critic/pauline-kael/movies',
         email: 'me@me.com',
         password: 'abc123',
-        role: 'user'
+        role: 'admin'
     };
 
     let token = null;
@@ -40,10 +40,12 @@ describe('Review E2E API', () => {
                 token = body.token;
                 assert.ok(reviewer._id);
                 assert.ok(token);
+                assert.ok(body.role);
                 bad.reviewer = reviewer._id;
                 good.reviewer = reviewer._id;
             
                 return request.post(`/films`)
+                    .set('Authorization', reviewer.role)
                     .send(film)
                     .then(({ body }) => {
                         film = body;
