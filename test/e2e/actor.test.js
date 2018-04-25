@@ -1,10 +1,14 @@
 const { assert } = require('chai');
 const request = require('./request');
-const { dropCollection } = require('./db');
+const { dropCollection, createToken } = require('./db');
 const Actor = require('../../lib/models/Actor');
 
 describe('Actor E2E API', () => {
 
+    let token = '';
+
+
+    before(() => createToken().then(t => token = t));
     before (() => dropCollection('actors'));
 
     let felicia =  {
@@ -39,6 +43,7 @@ describe('Actor E2E API', () => {
     it('saves and gets an actor', () => {
 
         return request.post('/actors')
+            .set('Authorization', token)
             .send(felicia)
             .then(checkOk)
             .then(({ body }) => {
@@ -80,6 +85,7 @@ describe('Actor E2E API', () => {
 
     it('updates an actor', () => {
         return request.post('/actors')
+            .set('Authorization', token)
             .send(wilder)
             .then(({ body }) => {
                 wilder = body;
@@ -107,6 +113,7 @@ describe('Actor E2E API', () => {
 
     it('deletes an actor', () => {
         return request.delete(`/actors/${wilder._id}`)
+            .set('Authorization', token)
             .then(() => {
                 return Actor.findById(wilder._id);
             })
@@ -117,6 +124,7 @@ describe('Actor E2E API', () => {
 
     it('cannot delete an actor who is in a film', () => {
         return request.delete(`/actors/${felicia._id}`)
+            .set('Authorization', token)
             .then(() => {
                 return Actor.findById(felicia._id);
             })
@@ -127,6 +135,7 @@ describe('Actor E2E API', () => {
 
     it('returns 404 on non-existant id', () => {
         return request.get(`/actors/${wilder._id}`)
+            .set('Authorization', token)
             .then(res => {
                 assert.equal(res.status, 404);
             });
