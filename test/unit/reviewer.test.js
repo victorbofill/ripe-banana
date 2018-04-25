@@ -10,7 +10,8 @@ describe('Reviewer model', () => {
             name: 'Pauline Kael',
             company: 'https://www.rottentomatoes.com/critic/pauline-kael/movies',
             email: 'me@me.com',
-            hash: 'abc123'
+            hash: 'abc123',
+            role: 'user'
         };
 
         const kael = new Reviewer(data);
@@ -19,21 +20,36 @@ describe('Reviewer model', () => {
         assert.isUndefined(kael.validateSync());
     });
 
-    it('required name, and email', () => {
+    it('required name, email, and user', () => {
         const reviewer = new Reviewer({});
-        const errors = getErrors(reviewer.validateSync(), 2);
+        const errors = getErrors(reviewer.validateSync(), 3);
         assert.equal(errors.name.kind, 'required');
+        assert.equal(errors.email.kind, 'required');
+        assert.equal(errors.role.kind, 'required');
     });
 
     it('required valid email format', () => {
         const data = {
             name: 'Frank',
-            email: 'Frank'
+            email: 'Frank',
+            role: 'user'
         };
 
         const reviewer = new Reviewer(data);
         const errors = getErrors(reviewer.validateSync(), 1);
         assert.equal(errors.email.kind, 'invalid email format');
+    });
+
+    it('user required enum', () => {
+        const data = {
+            name: 'Frank',
+            email: 'me@me.com',
+            role: 'Frank'
+        };
+
+        const reviewer = new Reviewer(data);
+        const errors = getErrors(reviewer.validateSync(), 1);
+        assert.equal(errors.role.kind, 'enum');
     });
 });
 
