@@ -3,7 +3,7 @@ const Reviewer = require('../../lib/models/Reviewer');
 const { getErrors } = require('./helpers');
 
 
-describe.only('Reviewer model', () => {
+describe('Reviewer model', () => {
 
     it('valid good model', () => {
         const data = {
