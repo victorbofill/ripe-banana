@@ -5,7 +5,7 @@ const Review = require('../../lib/models/Review');
 
 describe('Review E2E API', () => {
 
-    let reviewer = {
+    const reviewer = {
         name: 'Pauline Kael',
         company: 'https://www.rottentomatoes.com/critic/pauline-kael/movies',
         email: 'me@me.com',

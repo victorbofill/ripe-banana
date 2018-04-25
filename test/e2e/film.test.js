@@ -19,7 +19,7 @@ describe('Film E2E API', () => {
         pob: 'Huntsville, AL'
     };
 
-    let reviewer = {
+    const reviewer = {
         name: 'Some Guy',
         company: 'https://www.myopinionmatters.com',
         email: 'thisguy@email.com',
