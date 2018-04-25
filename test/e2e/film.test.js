@@ -19,12 +19,12 @@ describe('Film E2E API', () => {
         pob: 'Huntsville, AL'
     };
 
-    let reviewer = {
+    const reviewer = {
         name: 'Some Guy',
         company: 'https://www.myopinionmatters.com',
         email: 'thisguy@email.com',
         password: 'abc',
-        role: 'user'
+        role: 'admin'
     };
 
     let review = {
@@ -60,7 +60,21 @@ describe('Film E2E API', () => {
     before(() => dropCollection('reviewers'));
 
     before(() => {
+        return request.post('/auth/signup')
+            .send(reviewer)
+            .then(checkOk)
+            .then(( { body }) => {
+                reviewer._id = body._id;
+                token = body.token;
+                review.reviewer = reviewer._id;
+
+                assert.ok(reviewer.role);
+            });
+    });
+
+    before(() => {
         return request.post('/actors')
+            .set('Authorization', reviewer.role)
             .send(actor)
             .then(checkOk)
             .then(({ body }) => actor = body)
@@ -71,6 +85,7 @@ describe('Film E2E API', () => {
 
     before(() => {
         return request.post('/studios')
+            .set('Authorization', reviewer.role)
             .send(studio)
             .then(checkOk)
             .then(({ body }) => studio = body)
@@ -82,23 +97,13 @@ describe('Film E2E API', () => {
 
     before(() => {
         return request.post('/films')
+            .set('Authorization', reviewer.role)
             .send(trekWars)
             .then(checkOk)
             .then(( { body }) => trekWars = body)
             .then(() => {
                 studio.films = [trekWars];
                 review.film = trekWars;
-            });
-    });
-
-    before(() => {
-        return request.post('/auth/signup')
-            .send(reviewer)
-            .then(checkOk)
-            .then(( { body }) => {
-                reviewer._id = body._id;
-                token = body.token;
-                review.reviewer = reviewer._id;
             });
     });
 
@@ -112,6 +117,7 @@ describe('Film E2E API', () => {
 
     it('saves a film', () => {
         return request.post('/films')
+            .set('Authorization', reviewer.role)
             .send(lotr)
             .then(checkOk)
             .then(( {body }) => {
@@ -165,6 +171,7 @@ describe('Film E2E API', () => {
 
     it('deletes a film', () => {
         return request.delete(`/films/${lotr._id}`)
+            .set('Authorization', reviewer.role)
             .then(() => {
                 return Film.findById(lotr._id);
             })

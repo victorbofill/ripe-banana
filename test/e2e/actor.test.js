@@ -1,14 +1,31 @@
 const { assert } = require('chai');
 const request = require('./request');
-const { dropCollection, createToken } = require('./db');
+const { dropCollection } = require('./db');
 const Actor = require('../../lib/models/Actor');
 
-describe.skip('Actor E2E API', () => {
+describe('Actor E2E API', () => {
 
-    let token = '';
+    const reviewer = {
+        name: 'Lady',
+        email: 'me@me.com',
+        password: 'abc',
+        role: 'admin'
+    };
 
-    before(() => createToken().then(t => token = t));
     before (() => dropCollection('actors'));
+    before(() => dropCollection('reviewers'));
+
+    before(() => {
+        return request.post('/auth/signup')
+            .send(reviewer)
+            .then(checkOk)
+            .then(( { body }) => {
+                reviewer._id = body._id;
+
+                assert.ok(body.role);
+            });
+    });
+
 
     let felicia =  {
         name: 'Felicia Day',
@@ -42,7 +59,7 @@ describe.skip('Actor E2E API', () => {
     it('saves and gets an actor', () => {
 
         return request.post('/actors')
-            .set('Authorization', token)
+            .set('Authorization', reviewer.role)
             .send(felicia)
             .then(checkOk)
             .then(({ body }) => {
@@ -63,6 +80,7 @@ describe.skip('Actor E2E API', () => {
         assert.equal(felicia._id, film.cast[0].actor);
 
         return request.post('/films')
+            .set('Authorization', reviewer.role)
             .send(film)
             .then(({ body }) => {
                 film = body;
@@ -84,12 +102,13 @@ describe.skip('Actor E2E API', () => {
 
     it('updates an actor', () => {
         return request.post('/actors')
-            .set('Authorization', token)
+            .set('Authorization', reviewer.role)
             .send(wilder)
             .then(({ body }) => {
                 wilder = body;
                 wilder.pob = 'Milwaukee, WI';
                 return request.put(`/actors/${wilder._id}`)
+                    .set('Authorization', reviewer.role)
                     .send(wilder)
                     .then(checkOk)
                     .then(({ body }) => {
@@ -112,7 +131,7 @@ describe.skip('Actor E2E API', () => {
 
     it('deletes an actor', () => {
         return request.delete(`/actors/${wilder._id}`)
-            .set('Authorization', token)
+            .set('Authorization', reviewer.role)
             .then(() => {
                 return Actor.findById(wilder._id);
             })
@@ -123,7 +142,7 @@ describe.skip('Actor E2E API', () => {
 
     it('cannot delete an actor who is in a film', () => {
         return request.delete(`/actors/${felicia._id}`)
-            .set('Authorization', token)
+            .set('Authorization', reviewer.role)
             .then(() => {
                 return Actor.findById(felicia._id);
             })
@@ -134,7 +153,6 @@ describe.skip('Actor E2E API', () => {
 
     it('returns 404 on non-existant id', () => {
         return request.get(`/actors/${wilder._id}`)
-            .set('Authorization', token)
             .then(res => {
                 assert.equal(res.status, 404);
             });
