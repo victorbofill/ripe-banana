@@ -9,7 +9,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "//pretest": "npm run lint",
+    "pretest": "npm run lint",
     "mocha": "mocha --recursive",
     "test": "npm run mocha",
     "test:watch": "npm run mocha -- -w",
@@ -31,7 +31,8 @@
     "express": "^4.16.3",
     "jsonwebtoken": "^8.2.1",
     "mongoose": "^5.0.15",
-    "morgan": "^1.9.0"
+    "morgan": "^1.9.0",
+    "validator": "^9.4.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",

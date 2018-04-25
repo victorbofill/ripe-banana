@@ -22,9 +22,7 @@ describe('Actor E2E API', () => {
     let film = {
         title: 'Dr.Horrible\'s Sing Along Blog',
         released: 2008,
-        cast: [{
-            part: 'Penny'
-        }]
+        cast: []
     };
 
     const checkOk = res => {
@@ -56,7 +54,8 @@ describe('Actor E2E API', () => {
     });
 
     it('gets an actor by id, with films', () => {
-        film.cast[0].actor = felicia._id;
+        const cast = { role : 'Penny', actor: felicia._id };
+        film.cast.push(cast);
         assert.equal(felicia._id, film.cast[0].actor);
 
         return request.post('/films')
