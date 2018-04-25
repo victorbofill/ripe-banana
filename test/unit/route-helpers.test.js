@@ -1,7 +1,7 @@
 const { assert } = require('chai');
 const { respond } = require('../../lib/routes/route-helpers');
 
-describe.only('respond middleware wrapper', () => {
+describe('respond middleware wrapper', () => {
     it('sends promise resolve', done => {
         const data = {};
         const req = {};
