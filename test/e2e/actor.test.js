@@ -3,12 +3,34 @@ const request = require('./request');
 const { dropCollection, createToken } = require('./db');
 const Actor = require('../../lib/models/Actor');
 
-describe.skip('Actor E2E API', () => {
+describe.only('Actor E2E API', () => {
 
     let token = '';
+    let role = '';
 
-    before(() => createToken().then(t => token = t));
+    let reviewer = {
+        name: 'Lady',
+        email: 'me@me.com',
+        password: 'abc',
+        role: 'admin'
+    }
+
     before (() => dropCollection('actors'));
+    before(() => dropCollection('reviewers'));
+
+    before(() => {
+        return request.post('/auth/signup')
+            .send(reviewer)
+            .then(checkOk)
+            .then(( { body }) => {
+                reviewer._id = body._id;
+                token = body.token;
+                role = body.role;
+
+                assert.ok(role);
+            });
+    });
+
 
     let felicia =  {
         name: 'Felicia Day',
@@ -42,7 +64,6 @@ describe.skip('Actor E2E API', () => {
     it('saves and gets an actor', () => {
 
         return request.post('/actors')
-            .set('Authorization', token)
             .send(felicia)
             .then(checkOk)
             .then(({ body }) => {
@@ -84,7 +105,6 @@ describe.skip('Actor E2E API', () => {
 
     it('updates an actor', () => {
         return request.post('/actors')
-            .set('Authorization', token)
             .send(wilder)
             .then(({ body }) => {
                 wilder = body;
@@ -112,7 +132,6 @@ describe.skip('Actor E2E API', () => {
 
     it('deletes an actor', () => {
         return request.delete(`/actors/${wilder._id}`)
-            .set('Authorization', token)
             .then(() => {
                 return Actor.findById(wilder._id);
             })
@@ -123,7 +142,6 @@ describe.skip('Actor E2E API', () => {
 
     it('cannot delete an actor who is in a film', () => {
         return request.delete(`/actors/${felicia._id}`)
-            .set('Authorization', token)
             .then(() => {
                 return Actor.findById(felicia._id);
             })
@@ -134,7 +152,6 @@ describe.skip('Actor E2E API', () => {
 
     it('returns 404 on non-existant id', () => {
         return request.get(`/actors/${wilder._id}`)
-            .set('Authorization', token)
             .then(res => {
                 assert.equal(res.status, 404);
             });
