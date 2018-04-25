@@ -4,12 +4,6 @@ const { dropCollection } = require('./db');
 const Actor = require('../../lib/models/Actor');
 
 describe('Actor E2E API', () => {
-<<<<<<< HEAD
-
-    // let token = '';
-    let role = '';
-=======
->>>>>>> dev
 
     const reviewer = {
         name: 'Lady',
