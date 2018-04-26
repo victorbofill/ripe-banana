@@ -13,6 +13,13 @@ describe.only('Aggregate tests API', () => {
         role: 'admin'
     };
 
+    const reviewer2 = {
+        name: 'Some guy',
+        email: 'me2@me.com',
+        password: 'abc',
+        role: 'user'
+    };
+
     let universal = {
         name: 'Universal Cartoon Studios',
         address: {
@@ -54,6 +61,24 @@ describe.only('Aggregate tests API', () => {
         reviewer: null,
         film: null
     };
+
+    let review4 = {
+        rating: 4.5,
+        reviewer: null,
+        film: null
+    };
+
+    let review5 = {
+        rating: 5,
+        reviewer: null,
+        film: null
+    };
+
+    let review6 = {
+        rating: 1,
+        reviewer: null,
+        film: null
+    };
     
     const checkOk = res => {
         if(!res.ok) throw res.error;
@@ -81,6 +106,18 @@ describe.only('Aggregate tests API', () => {
                 assert.ok(body.role);
                 assert.ok(reviewer._id);
                 assert.ok(token);
+
+                return request.post('/auth/signup')
+                    .send(reviewer2)
+                    .then(checkOk)
+                    .then(( { body }) => {
+                        reviewer2._id = body._id;
+                        review4.reviewer = reviewer2._id;
+                        review5.reviewer = reviewer2._id;
+                        review6.reviewer = reviewer._id;
+
+                        assert.ok(reviewer2._id);
+                    });
             });
     });
 
@@ -107,6 +144,7 @@ describe.only('Aggregate tests API', () => {
             .then(( { body }) => {
                 film1 = body;
                 review1.film = film1._id;
+                review4.film = film1._id;
                 universal.films.push({
                     _id: film1._id,
                     title: film1.title
@@ -118,6 +156,7 @@ describe.only('Aggregate tests API', () => {
                     .then(( { body }) => {
                         film2 = body;
                         review2.film = film2._id;
+                        review5.film = film2._id;
                         universal.films.push({
                             _id: film2._id,
                             title: film2.title
@@ -129,6 +168,7 @@ describe.only('Aggregate tests API', () => {
                             .then(( { body }) => {
                                 film3 = body;
                                 review3.film = film3._id;
+                                review6.film = film3._id;
                                 universal.films.push({
                                     _id: film3._id,
                                     title: film3.title
@@ -145,7 +185,6 @@ describe.only('Aggregate tests API', () => {
             .send(review1)
             .then(checkOk)
             .then(( { body }) => {
-                console.log('BODY' , body);
                 review1 = body;
                 return request.post('/reviews')
                     .set('Authorization', token)
@@ -159,6 +198,27 @@ describe.only('Aggregate tests API', () => {
                             .then(checkOk)
                             .then(( { body }) => {
                                 review3 = body;
+                                return request.post('/reviews')
+                                    .set('Authorization', token)
+                                    .send(review4)
+                                    .then(checkOk)
+                                    .then(( { body }) => {
+                                        review4 = body;
+                                        return request.post('/reviews')
+                                            .set('Authorization', token)
+                                            .send(review5)
+                                            .then(checkOk)
+                                            .then(( { body }) => {
+                                                review5 = body;
+                                                return request.post('/reviews')
+                                                    .set('Authorization', token)
+                                                    .send(review6)
+                                                    .then(checkOk)
+                                                    .then(( { body }) => {
+                                                        review6 = body;
+                                                    });
+                                            });
+                                    });
                             });
                     });
             });
@@ -170,13 +230,34 @@ describe.only('Aggregate tests API', () => {
         return request.get('/films')
             .then(checkOk)
             .then(({ body }) => {
-                assert.deepEqual(body, [film1, film2, film3].map(getAllFields));
-                const expectedAvg = ( review1.rating + review2.rating + review3.rating ) / 3;
-                assert.equal(body.averageRating, expectedAvg)
+                assert.deepEqual(body[0], {
+                    _id: film3.title,
+                    averageRating: (review3.rating + review6.rating) / 2,
+                    released: film3.released,
+                    studio: [ universal.name ]
+                });
             });
     }).timeout(2500);
 
     it('gets top films sorted by highest', () => {
+        return request.get('/films/top')
+            .then(checkOk)
+            .then(({ body }) => {
+                assert.deepEqual(body[0], [film1].map(getAllFields));
+                assert.deepEqual(body[2], [film3].map(getAllFields));
+            });
+    }).timeout(2500);
+
+    it.skip('get actors includes movie count', () => {
+        return request.get('/films/top')
+            .then(checkOk)
+            .then(({ body }) => {
+                assert.deepEqual(body[0], [film1].map(getAllFields));
+                assert.deepEqual(body[2], [film3].map(getAllFields));
+            });
+    }).timeout(2500);
+
+    it.skip('get reviewer includes review count and average', () => {
         return request.get('/films/top')
             .then(checkOk)
             .then(({ body }) => {
