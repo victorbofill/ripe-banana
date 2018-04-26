@@ -243,8 +243,13 @@ describe.only('Aggregate tests API', () => {
         return request.get('/films/top')
             .then(checkOk)
             .then(({ body }) => {
-                assert.deepEqual(body[0], [film1].map(getAllFields));
-                assert.deepEqual(body[2], [film3].map(getAllFields));
+                assert.deepEqual(body[0], {
+                    _id: film1.title,
+                    averageRating: (review1.rating + review4.rating) / 2,
+                    released: film1.released,
+                    studio: [ universal.name ]
+                });
+                assert.isAtMost(body.length, 10);
             });
     }).timeout(2500);
 
