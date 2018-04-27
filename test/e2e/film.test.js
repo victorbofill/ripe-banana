@@ -159,16 +159,6 @@ describe('Film E2E API', () => {
             });
     });
 
-    const getAllFields = ({ _id, title, released, studio }) => ({ _id, title, released, studio });
-
-    it('gets all films', () => {
-        return request.get('/films')
-            .then(checkOk)
-            .then(({ body }) => {
-                assert.deepEqual(body, [trekWars, lotr].map(getAllFields));
-            });
-    }).timeout(2500);
-
     it('deletes a film', () => {
         return request.delete(`/films/${lotr._id}`)
             .set('Authorization', reviewer.role)

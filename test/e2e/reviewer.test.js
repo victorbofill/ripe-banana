@@ -24,18 +24,7 @@ describe('Reviewer E2E API', () => {
     let film = {
         title: 'Jumanji'
     };
-
-    let review = {
-        rating: 3,
-        review: 'kind of weird',
-        film: {
-            _id: null,
-            title: null,
-        }
-    };
-    
-    let token = null;
-    
+        
     before(() => dropCollection('reviewers'));
     before(() => dropCollection('films'));
     before(() => {
@@ -44,7 +33,6 @@ describe('Reviewer E2E API', () => {
             .send(kael)
             .then (({ body }) => {
                 kael._id = body._id;
-                token = body.token;
                 assert.ok(body.role);
 
                 return request
@@ -59,8 +47,6 @@ describe('Reviewer E2E API', () => {
                             .then(({ body }) => {
                                 film = body;
                                 assert.ok(film._id);
-                                review.film._id = film._id;
-                                review.film.title = film.title;
                             });
                     });
             });
@@ -84,34 +70,6 @@ describe('Reviewer E2E API', () => {
                 assert.deepEqual(body, [kael, guy].map(getAllFields));
             });
 
-    });
-
-    it('gets a reviewer by id, and reviews', () => {
-        review.reviewer = kael._id;
-        assert.equal(kael._id, review.reviewer);
-
-        return request.post('/reviews')
-            .set('Authorization', token)
-            .send(review)
-            .then(({ body }) => {
-                review = body;
-                return request.get(`/reviewers/${kael._id}`);
-            })
-            .then(({ body }) => {
-                const { _id, company, name } = kael;
-                assert.deepEqual(body, {
-                    _id, company, name,
-                    reviews: [{
-                        _id: review._id,
-                        rating: review.rating,
-                        review: review.review,
-                        film: {
-                            _id: film._id,
-                            title: film.title
-                        }
-                    }]
-                });
-            });
     });
 
     it('deletes a reviewer', () => {

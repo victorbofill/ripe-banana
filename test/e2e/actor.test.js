@@ -50,12 +50,6 @@ describe('Actor E2E API', () => {
         return res;
     };
 
-    const getAllFields = ({ _id, name }) => {
-        return {
-            _id, name
-        };
-    };
-
     it('saves and gets an actor', () => {
 
         return request.post('/actors')
@@ -118,14 +112,6 @@ describe('Actor E2E API', () => {
                     .then(({ body }) => {
                         assert.equal(body.role, wilder.role);
                     });
-            });
-    });
-
-    it('gets all actors', () => {
-        return request.get('/actors')
-            .then(checkOk)
-            .then(({ body }) => {
-                assert.deepEqual(body, [felicia, wilder].map(getAllFields));
             });
     });
 

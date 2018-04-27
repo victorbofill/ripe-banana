@@ -2,12 +2,12 @@
 const { assert } = require('chai');
 const request = require('./request');
 const { dropCollection } = require('./db');
-const Film = require('../../lib/models/Film');
 
-describe.only('Aggregate tests API', () => {
+describe('Aggregate tests API', () => {
 
     const reviewer = {
         name: 'Lady',
+        company: 'Movie Deli',
         email: 'me@me.com',
         password: 'abc',
         role: 'admin'
@@ -31,17 +31,20 @@ describe.only('Aggregate tests API', () => {
 
     let film1 = {
         title: 'Land Before Time',
-        released: 1988 ,
+        released: 1988,
+        cast: [],
     };
 
     let film2 = {
         title: 'Land Before Time 2: The Great Valley Adventure',
         released: 1994,
+        cast: [],
     };
 
     let film3 = {
         title: 'Land Before Time 3: The Time of Great Giving',
         released: 1995,
+        cast: [],
     };
 
     let review1 = {
@@ -79,6 +82,10 @@ describe.only('Aggregate tests API', () => {
         reviewer: null,
         film: null
     };
+
+    let actor = {
+        name: 'Candace Hutson',
+    };
     
     const checkOk = res => {
         if(!res.ok) throw res.error;
@@ -91,6 +98,7 @@ describe.only('Aggregate tests API', () => {
     before(() => dropCollection('reviewers'));
     before(() => dropCollection('studios'));
     before(() => dropCollection('films'));
+    before(() => dropCollection('actors'));
 
     before(() => {
         return request.post('/auth/signup')
@@ -133,6 +141,23 @@ describe.only('Aggregate tests API', () => {
                 film1.studio = universal._id;
                 film2.studio = universal._id;
                 film3.studio = universal._id;
+            });
+    });
+
+    before(() => {
+        return request.post('/actors')
+            .set('Authorization', reviewer.role)
+            .send(actor)
+            .then(checkOk)
+            .then(({ body }) => {
+                actor = body;
+                const cast = {
+                    part: 'Cera',
+                    actor: actor._id,
+                };
+                film1.cast.push(cast);
+                film2.cast.push(cast);
+                film3.cast.push(cast);
             });
     });
 
@@ -224,14 +249,13 @@ describe.only('Aggregate tests API', () => {
             });
     });
 
-    const getAllFields = ({ _id, title, released, studio, average }) => ({ _id, title, released, studio, average });
-
-    it('gets all films with an average rating', () => {
+    it('gets all films with an average rating, sort by release', () => {
         return request.get('/films')
             .then(checkOk)
             .then(({ body }) => {
                 assert.deepEqual(body[0], {
-                    _id: film3.title,
+                    _id: film3._id,
+                    title: film3.title,
                     averageRating: (review3.rating + review6.rating) / 2,
                     released: film3.released,
                     studio: [ universal.name ]
@@ -239,12 +263,13 @@ describe.only('Aggregate tests API', () => {
             });
     }).timeout(2500);
 
-    it('gets top films sorted by highest', () => {
+    it('gets top films sorted by highest rating', () => {
         return request.get('/films/top')
             .then(checkOk)
             .then(({ body }) => {
                 assert.deepEqual(body[0], {
-                    _id: film1.title,
+                    _id: film1._id,
+                    title: film1.title,
                     averageRating: (review1.rating + review4.rating) / 2,
                     released: film1.released,
                     studio: [ universal.name ]
@@ -253,23 +278,31 @@ describe.only('Aggregate tests API', () => {
             });
     }).timeout(2500);
 
-    it.skip('get actors includes movie count', () => {
-        return request.get('/films/top')
+    it('get actors includes movie count', () => {
+        return request.get('/actors')
             .then(checkOk)
             .then(({ body }) => {
-                assert.deepEqual(body[0], [film1].map(getAllFields));
-                assert.deepEqual(body[2], [film3].map(getAllFields));
+                assert.deepEqual(body[0], {
+                    _id: actor._id,
+                    name: actor.name,
+                    movieCount: 3
+                });
             });
-    }).timeout(2500);
+    });
 
-    it.skip('get reviewer includes review count and average', () => {
-        return request.get('/films/top')
+    it('get reviewer includes review count and average', () => {
+        return request.get(`/reviewers/${reviewer._id}`)
             .then(checkOk)
             .then(({ body }) => {
-                assert.deepEqual(body[0], [film1].map(getAllFields));
-                assert.deepEqual(body[2], [film3].map(getAllFields));
+                assert.deepEqual(body, {
+                    _id: reviewer._id,
+                    name: reviewer.name,
+                    company: reviewer.company,
+                    countOfReviews: 4,
+                    averageReview: 2.5
+                });
             });
-    }).timeout(2500);
+    });
 
 
 });
