@@ -1,4 +1,4 @@
 # Ripe Banana
 
 ## Overview
-Like Rotten Tomatoes only better
+Like Rotten Tomatoes only better n stuff
